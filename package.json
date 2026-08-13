@@ -1,0 +1,26 @@
+{
+  "name": "js-ts-llm-benchmark",
+  "version": "1.2.0",
+  "description": "Benchmark local para comparar modelos/agentes de código em tarefas JavaScript/TypeScript",
+  "type": "module",
+  "scripts": {
+    "bench": "tsx scripts/main.ts",
+    "bench:greenfield": "tsx scripts/main.ts --benchmark greenfield",
+    "bench:bugfix": "tsx scripts/main.ts --benchmark bugfix",
+    "report": "tsx scripts/report.ts",
+    "reevaluate": "tsx scripts/reevaluate.ts",
+    "usage:backfill": "tsx scripts/backfill-usage.ts",
+    "test": "node --import tsx --test scripts/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@github/copilot-sdk": "^1.0.9",
+    "@types/node": "^22.0.0",
+    "playwright-core": "^1.55.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

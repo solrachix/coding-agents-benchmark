@@ -1,0 +1,23 @@
+{
+  "rounds": 2,
+  "timeoutMinutes": 45,
+  "nodeVersion": ">=20",
+  "packageManager": "npm",
+  "rubricVersion": "2.3",
+  "validations": {
+    "install": true,
+    "typecheck": true,
+    "test": true,
+    "build": true,
+    "lint": true
+  },
+  "visual": {
+    "enabled": true,
+    "timeoutSeconds": 45
+  },
+  "shuffleRuns": true,
+  "uiFunctional": {
+    "enabled": true,
+    "timeoutSeconds": 90
+  }
+}

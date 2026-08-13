@@ -1,0 +1,9 @@
+node_modules/
+dist/
+results/
+reports/
+*.log
+*.db
+.env
+.next
+benchmark-project-*.zip

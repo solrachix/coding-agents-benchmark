@@ -1,0 +1,98 @@
+{
+  "opencode": [
+    {
+      "id": "opencode-go/deepseek-v4-flash",
+      "reasoningEffort": "max",
+      "enabled": false
+    },
+    {
+      "id": "openai/gpt-5.6-luna",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "openai/gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "enabled": false
+    },
+    {
+      "id": "opencode-go/deepseek-v4-pro",
+      "reasoningEffort": "max",
+      "enabled": false
+    },
+    {
+      "id": "opencode-go/deepseek-v4-flash",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "opencode-go/deepseek-v4-flash",
+      "reasoningEffort": "low",
+      "enabled": false
+    },
+    {
+      "id": "openai/gpt-5.6-luna",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "github-copilot/gpt-5.6-luna",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "github-copilot/gpt-5.4-mini",
+      "reasoningEffort": "medium",
+      "enabled": true
+    },
+    {
+      "id": "github-copilot/kimi-k2.7-code",
+      "reasoningEffort": "medium",
+      "enabled": true
+    },
+    {
+      "id": "github-copilot/mai-code-1.1-flash",
+      "reasoningEffort": "medium",
+      "enabled": true
+    },
+    {
+      "id": "github-copilot/claude-haiku-4.5",
+      "reasoningEffort": "medium",
+      "enabled": true
+    }
+  ],
+  "codex": [
+    {
+      "id": "gpt-5.6-luna",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "gpt-5.6-sol",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "reasoningEffort": "xhigh",
+      "enabled": false
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "reasoningEffort": "low",
+      "enabled": false
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "reasoningEffort": "medium",
+      "enabled": false
+    }
+  ],
+  "copilot": [
+    { "id": "gpt-5.6-luna", "reasoningEffort": "medium", "enabled": false },
+    { "id": "gpt-5.4-mini", "reasoningEffort": "medium", "enabled": true },
+    { "id": "kimi-k2.7-code", "reasoningEffort": "medium", "enabled": true },
+    { "id": "mai-code-1.1-flash", "reasoningEffort": "medium", "enabled": true },
+    { "id": "claude-haiku-4.5", "reasoningEffort": "medium", "enabled": true }
+  ]
+}

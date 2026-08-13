@@ -1,0 +1,22 @@
+# Benchmark Rubric 2.0 — alterações aplicadas
+
+- Hidden functional evaluator pós-agente (40 pontos) com SQLite/Prisma real.
+- Contrato funcional mínimo no greenfield para testes comparáveis.
+- Typecheck/build/lint preferem binários locais diretos, reduzindo gaming via scripts.
+- Git baseline commit antes do agente.
+- Penalidade para alteração/remoção de testes e scripts de validação no bugfix.
+- Detecção de rewrite por `git diff --numstat`.
+- Correção do crash ao remover `prisma/schema.prisma`.
+- Detecção ampliada de `any`, `@ts-ignore`, `@ts-expect-error`, `eslint-disable`.
+- Fixture bugfix sem comentários/README entregando a localização dos bugs.
+- Teste case-insensitive agora cria seu próprio dado, sem seed implícita.
+- DATABASE_URL de teste explícito e DB limpo.
+- Timeout registrado como `agent_timeout`, com `timedOut` e `signal` no meta.
+- Encerramento por process group para reduzir subprocessos órfãos.
+- Prompt wrapper idêntico para OpenCode e Codex.
+- Campanhas embaralhadas com seed reproduzível (`--seed`) e `results/campaign.json`.
+- Visual smoke exige HTTP 2xx e rejeita páginas óbvias de 404/500.
+- Score final com hard gates para falha funcional/typecheck/build.
+- Score heurístico antigo mantido apenas como diagnóstico.
+- README atualizado para a rubrica 2.0.
+- Suíte interna validada: 26/26 testes passando + typecheck + dry-run determinístico.
