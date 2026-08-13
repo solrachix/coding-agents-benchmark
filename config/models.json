@@ -89,11 +89,13 @@
     }
   ],
   "copilot": [
-    { "id": "gpt-5.6-luna", "reasoningEffort": "medium", "enabled": true },
-    { "id": "gpt-5.4-mini", "reasoningEffort": "medium", "enabled": true },
-    { "id": "mai-code-1.1-flash", "reasoningEffort": "medium", "enabled": true },
+    { "id": "gpt-5.6-luna", "reasoningEffort": "medium", "enabled": false },
+    { "id": "gpt-5.4-mini", "reasoningEffort": "medium", "enabled": false },
+    { "id": "mai-code-1.1-flash", "reasoningEffort": "medium", "enabled": false },
     { "id": "grok-4.5", "reasoningEffort": "medium", "enabled": false },
     { "id": "claude-sonnet-5", "reasoningEffort": "medium", "enabled": false },
-    { "id": "gemini-3.6-flash", "reasoningEffort": "medium", "enabled": false }
+    { "id": "gemini-3.6-flash", "reasoningEffort": "medium", "enabled": false },
+    { "id": "kimi-k2.7-code", "reasoningEffort": "medium", "enabled": true },
+    { "id": "claude-haiku-4.5", "reasoningEffort": "medium", "enabled": true }
   ]
 }

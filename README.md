@@ -4,7 +4,7 @@ Benchmark local para comparar modelos/agentes de código em tarefas JavaScript/T
 
 Projeto pessoal e experimental. A ideia é medir agentes em tarefas reais de coding, mantendo o mesmo prompt, o mesmo artefato de avaliação e uma trilha de auditoria por execução. Os resultados não são uma classificação universal dos modelos: representam estas configurações, este harness e estas campanhas.
 
-## Resultados compartilhados — 12 de agosto de 2026
+## Resultados compartilhados — agosto de 2026
 
 Texto preparado para compartilhar os resultados da campanha greenfield pelo Copilot SDK. Foram usados dois rounds por modelo, com créditos medidos por sessão. O `effectiveScore` inclui resultados recuperados por reavaliação local quando o artefato permaneceu inalterado; o score original continua preservado no relatório.
 
@@ -45,11 +45,11 @@ O runner usa `playwright-core` com o Chrome/Chromium do sistema; não baixa um n
 
 Edite `config/models.json` para habilitar/desabilitar modelos e `config/benchmark.json` para ajustar rounds, timeout, validações, captura visual e embaralhamento da campanha.
 
-A rubrica atual é **2.3**.
+A rubrica atual é **2.3**, com três categorias independentes: `greenfield`, `bugfix` e `frontend-challenge`.
 
 ## Harness Copilot SDK
 
-A V2.3 mantém OpenCode e Codex disponíveis, mas deixa ativos por padrão os cinco modelos configurados no harness `copilot-sdk`: GPT-5.6 Luna, GPT-5.4 mini, Kimi K2.7 Code, MAI-Code-1.1-Flash e Claude Haiku 4.5. Cada execução usa uma sessão e um diretório Copilot isolados.
+A V2.3 mantém OpenCode, Codex e Copilot SDK disponíveis. Os modelos ativos são controlados exclusivamente por `config/models.json`; não presuma que a lista ativa do repositório seja a mesma da sua conta ou da sua sessão. Cada execução do SDK usa uma sessão e um diretório Copilot isolados.
 
 Para instalar e fazer um smoke test sem consumir créditos:
 
@@ -88,7 +88,17 @@ npm run bench -- --concurrency 2
 npm run report
 ```
 
-## Frontend Challenge
+## As três categorias
+
+### Greenfield
+
+O agente recebe um workspace vazio e implementa uma aplicação JavaScript/TypeScript completa. A avaliação prioriza comportamento verificável: evaluator funcional independente, E2E real pela interface, typecheck, testes, build, lint, arquitetura e setup.
+
+### Bugfix
+
+O agente recebe uma aplicação existente com defeitos intencionais. O benchmark verifica se os bugs foram corrigidos e se os testes, scripts de validação e estrutura do fixture foram preservados. Alterar testes para esconder a falha gera penalidade.
+
+### Frontend Challenge
 
 Além de `greenfield` e `bugfix`, a V1 do `frontend-challenge` mede uma tela de dashboard/catalogo de eventos a partir de uma fixture e `REFERENCE.md`. A categoria é independente do `UI Functional` do greenfield e pontua:
 
@@ -119,6 +129,18 @@ O modelo precisa estar habilitado em `config/models.json`. Para todos os modelos
 ```bash
 npm run bench -- --engine copilot --concurrency 2
 ```
+
+#### `UI Functional` não é `Frontend Challenge`
+
+O `UI Functional` do greenfield responde: “os fluxos principais funcionam pelo browser?”. Ele testa operações como criar, buscar, editar, importar e excluir.
+
+O `Frontend Challenge` responde uma pergunta mais ampla: “a interface está bem construída?”. Por isso ele tem score próprio para fidelidade visual, responsividade, acessibilidade, interações, arquitetura e validação técnica. Os dois resultados aparecem separados no relatório.
+
+#### Snapshot visual da campanha
+
+Este gráfico resume uma campanha do `frontend-challenge` com médias de dois rounds. `N/A` significa que o artefato não teve uma execução comparável, não que o modelo recebeu nota zero.
+
+![Benchmark de frontend — Frontend Challenge](docs/results/frontend-challenge-summary.png)
 
 ## Rubrica 2.3
 
