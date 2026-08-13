@@ -7,3 +7,5 @@ reports/
 .env
 .next
 benchmark-project-*.zip
+!docs/results/
+!docs/results/*.png
