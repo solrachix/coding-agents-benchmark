@@ -7,6 +7,7 @@
     "bench": "tsx scripts/main.ts",
     "bench:greenfield": "tsx scripts/main.ts --benchmark greenfield",
     "bench:bugfix": "tsx scripts/main.ts --benchmark bugfix",
+    "bench:frontend-challenge": "tsx scripts/main.ts --benchmark frontend-challenge",
     "report": "tsx scripts/report.ts",
     "reevaluate": "tsx scripts/reevaluate.ts",
     "usage:backfill": "tsx scripts/backfill-usage.ts",

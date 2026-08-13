@@ -69,6 +69,7 @@ npm run bench
 # Apenas um benchmark
 npm run bench:greenfield
 npm run bench:bugfix
+npm run bench:frontend-challenge
 
 # Filtrar engine/modelo
 npm run bench -- --engine opencode --model opencode-go/deepseek-v4-flash
@@ -85,6 +86,38 @@ npm run bench -- --concurrency 2
 
 # Relatório
 npm run report
+```
+
+## Frontend Challenge
+
+Além de `greenfield` e `bugfix`, a V1 do `frontend-challenge` mede uma tela de dashboard/catalogo de eventos a partir de uma fixture e `REFERENCE.md`. A categoria é independente do `UI Functional` do greenfield e pontua:
+
+| Dimensão | Pontos |
+|---|---:|
+| Visual fidelity (desktop/tablet/mobile) | 25 |
+| Responsive behavior | 15 |
+| E2E funcional | 20 |
+| Accessibility heuristics | 10 |
+| Interactions | 10 |
+| Component architecture | 10 |
+| Typecheck/test/build/lint | 10 |
+
+Gates: build falhando limita a 69; página indisponível a 49; E2E abaixo de 10/20 a 69; mobile quebrado a 79. A avaliação visual é determinística e tolerante: verifica regiões semânticas, quantidade de cards, overflow e layout em 1440x900, 768x1024 e 390x844, além de salvar `desktop.png`, `tablet.png` e `mobile.png` por execução. Não é comparação pixel-perfect nem julgamento visual por IA.
+
+Para executar somente a categoria:
+
+```bash
+npm run bench -- \
+  --engine copilot \
+  --benchmark frontend-challenge \
+  --model gpt-5.6-luna \
+  --concurrency 1
+```
+
+O modelo precisa estar habilitado em `config/models.json`. Para todos os modelos habilitados e as três categorias:
+
+```bash
+npm run bench -- --engine copilot --concurrency 2
 ```
 
 ## Rubrica 2.3

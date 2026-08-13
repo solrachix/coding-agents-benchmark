@@ -32,6 +32,7 @@ import { captureProjectMetadata } from "./project-metadata.js";
 import { parseTokenUsage } from "./token-usage.js";
 import type { BenchmarkConfig, ModelConfig } from "./utils.js";
 import { buildBenchmarkPrompt } from "./prompt.js";
+import { runFrontendChallengeEvaluator } from "./frontend-challenge.js";
 
 export async function runCodex(
   benchmark: string,
@@ -53,8 +54,8 @@ export async function runCodex(
   const prompt = await buildBenchmarkPrompt(promptPath);
 
   let fixtureDir: string | null = null;
-  if (benchmark === "bugfix") {
-    fixtureDir = join(FIXTURES_DIR, "bugfix-app");
+  if (benchmark === "bugfix" || benchmark === "frontend-challenge") {
+    fixtureDir = join(FIXTURES_DIR, benchmark === "bugfix" ? "bugfix-app" : "frontend-challenge");
     copyFixture(fixtureDir, projectDir);
   }
 
@@ -129,6 +130,9 @@ export async function runCodex(
 
   await saveValidationLog(projectDir, validation);
 
+  const frontend = benchmark === "frontend-challenge" ? await runFrontendChallengeEvaluator(projectDir, resultDir, validation, (config.visual?.timeoutSeconds ?? 45) * 1000) : undefined;
+  if (frontend) await saveJson(join(resultDir, "frontend-challenge.json"), frontend);
+
   const uiFunctional = config.uiFunctional?.enabled === false
     ? { enabled: false, status: "skipped" as const, passedChecks: 0, totalChecks: 0, score: 0, maxScore: benchmark === "greenfield" ? 15 : 0, reason: "disabled_in_config", output: "UI evaluator disabled in config." }
     : await runUiFunctionalEvaluator(projectDir, resultDir, benchmark, (config.uiFunctional?.timeoutSeconds ?? 90) * 1000);
@@ -151,6 +155,7 @@ export async function runCodex(
     benchmark,
     harnessError: harnessErrorInfo.harnessError,
     ui: uiFunctional,
+    frontend,
   });
   await saveScore(resultDir, score);
   await generateManualReviewTemplate(resultDir, score);

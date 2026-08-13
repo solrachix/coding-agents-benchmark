@@ -8,9 +8,10 @@ import type { TokenUsage } from "./token-usage.js";
 import type { UiFunctionalValidation } from "./ui-functional-evaluator.js";
 import type { ModelRuntimeMetadata } from "./model-metadata.js";
 import type { ProjectMetadata } from "./project-metadata.js";
+import type { FrontendChallengeResult } from "./frontend-challenge.js";
 
 export interface Score extends RubricScore {
-  scoreStatus: "valid" | "harness_failed" | "ui_unverified" | "evaluator_error";
+  scoreStatus: "valid" | "harness_failed" | "ui_unverified" | "visual_unverified" | "evaluator_error";
   total: number | null;
   artifactScore: number;
   /** Legacy structural/heuristic score, retained for diagnosis only. */
@@ -30,6 +31,7 @@ export interface Score extends RubricScore {
   architecture: number;
   validation: number;
   penalties: Penalties;
+  frontendChallenge?: FrontendChallengeResult;
 }
 
 export function getScoreStatus(
@@ -106,6 +108,7 @@ export async function computeScore(
     benchmark?: string;
     harnessError?: boolean;
     ui?: UiFunctionalValidation;
+    frontend?: FrontendChallengeResult;
   }
 ): Promise<Score> {
   const effectivePenalties: Penalties = penalties ?? {
@@ -125,6 +128,33 @@ export async function computeScore(
   const benchmark = options?.benchmark ?? "";
   const rubric = await scoreProject(options?.projectDir ?? ".", validation, effectivePenalties, benchmark);
   const heuristicScore = rubric.total ?? 0;
+
+  if (benchmark === "frontend-challenge" && options?.frontend) {
+    const frontend = options.frontend;
+    return {
+      ...rubric,
+      total: frontend.scoreStatus === "valid" ? frontend.score : null,
+      artifactScore: frontend.score ?? 0,
+      objectiveScore: frontend.score ?? 0,
+      tier: finalTier(frontend.score ?? 0),
+      scoreStatus: frontend.scoreStatus,
+      typecheck: frontend.validation.typecheck,
+      test: frontend.validation.test,
+      build: frontend.validation.build,
+      lint: frontend.validation.lint,
+      readmeSetup: validation.readmeExists ? 5 : 0,
+      securityNoShortcuts: 0,
+      functionalCompleteness: frontend.e2e.score,
+      functionalMax: frontend.e2e.max,
+      uiFunctional: frontend.visual.score,
+      uiFunctionalMax: frontend.visual.max,
+      preservation: 0,
+      architecture: frontend.architecture.score,
+      validation: frontend.validation.score,
+      penalties: effectivePenalties,
+      frontendChallenge: frontend,
+    };
+  }
 
   // Rubric v2.3: behavior first. Both benchmarks sum to 100 before penalties.
   const functionalCompleteness = validation.functional.score; // 0..35

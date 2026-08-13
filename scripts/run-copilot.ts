@@ -17,6 +17,7 @@ import { copilotMetricsToTokenUsage, type TokenUsage } from "./token-usage.js";
 import type { BenchmarkConfig, ModelConfig } from "./utils.js";
 import { buildBenchmarkPrompt } from "./prompt.js";
 import type { ModelRuntimeMetadata } from "./model-metadata.js";
+import { runFrontendChallengeEvaluator } from "./frontend-challenge.js";
 
 type CopilotReasoningEffort = "low" | "medium" | "high" | "xhigh" | "max";
 type QuotaSnapshot = {
@@ -129,8 +130,8 @@ export async function runCopilot(
   ensureDir(resultDir);
   const prompt = await buildBenchmarkPrompt(join(PROMPTS_DIR, `${benchmark}.md`));
   let fixtureDir: string | null = null;
-  if (benchmark === "bugfix") {
-    fixtureDir = join(FIXTURES_DIR, "bugfix-app");
+  if (benchmark === "bugfix" || benchmark === "frontend-challenge") {
+    fixtureDir = join(FIXTURES_DIR, benchmark === "bugfix" ? "bugfix-app" : "frontend-challenge");
     copyFixture(fixtureDir, projectDir);
   }
   const isolatedGit = initializeIsolatedGit(projectDir);
@@ -206,6 +207,8 @@ export async function runCopilot(
   const validation = await validateProject(projectDir, config.timeoutMinutes, config.validations, benchmark);
   const validationDurationSeconds = formatDuration(Date.now() - validationStart);
   await saveValidationLog(projectDir, validation);
+  const frontend = benchmark === "frontend-challenge" ? await runFrontendChallengeEvaluator(projectDir, resultDir, validation, (config.visual?.timeoutSeconds ?? 45) * 1000) : undefined;
+  if (frontend) await saveJson(join(resultDir, "frontend-challenge.json"), frontend);
   const uiFunctional = config.uiFunctional?.enabled === false
     ? { enabled: false, status: "skipped" as const, passedChecks: 0, totalChecks: 0, score: 0, maxScore: benchmark === "greenfield" ? 15 : 0, reason: "disabled_in_config", output: "UI evaluator disabled in config." }
     : await runUiFunctionalEvaluator(projectDir, resultDir, benchmark, (config.uiFunctional?.timeoutSeconds ?? 90) * 1000);
@@ -215,7 +218,7 @@ export async function runCopilot(
   const penalties = detectPenalties(projectDir, fixtureDir, benchmark);
   const projectMetadata = await captureProjectMetadata(projectDir);
   await saveJson(join(resultDir, "project-metadata.json"), projectMetadata);
-  const score = await computeScore(validation, penalties, { projectDir, benchmark, harnessError: harnessErrorInfo.harnessError, ui: uiFunctional });
+  const score = await computeScore(validation, penalties, { projectDir, benchmark, harnessError: harnessErrorInfo.harnessError, ui: uiFunctional, frontend });
   await saveScore(resultDir, score);
   await generateManualReviewTemplate(resultDir, score);
   const totalDurationSeconds = formatDuration(Date.now() - totalStartTime);

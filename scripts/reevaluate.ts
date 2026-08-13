@@ -6,6 +6,7 @@ import { detectPenalties } from "./penalties.js";
 import { validateProject, type ValidationResult } from "./validate-project.js";
 import { runUiFunctionalEvaluator, type UiFunctionalValidation } from "./ui-functional-evaluator.js";
 import { saveJson, runWithConcurrency, RESULTS_DIR, FIXTURES_DIR, ensureDir } from "./utils.js";
+import { runFrontendChallengeEvaluator } from "./frontend-challenge.js";
 
 const IGNORED_DIRS = new Set(["node_modules", ".next", ".benchmark-evaluator", ".git", "coverage", "dist", "generated", ".prisma"]);
 
@@ -57,7 +58,7 @@ export function reevaluationPolicy(meta: Pick<Meta, "exitCode" | "harnessError">
 }
 
 async function preserveOriginals(resultDir: string): Promise<void> {
-  for (const filename of ["meta.json", "score.json"]) {
+  for (const filename of ["meta.json", "score.json", "frontend-challenge.json"]) {
     const source = join(resultDir, filename);
     const destination = join(resultDir, filename.replace(".json", ".original.json"));
     try { await stat(destination); } catch { await copyFile(source, destination); }
@@ -73,7 +74,7 @@ async function preserveOriginals(resultDir: string): Promise<void> {
 
 async function listRuns(executionId: string): Promise<Array<{ resultDir: string; meta: Meta; score: Score }>> {
   const runs: Array<{ resultDir: string; meta: Meta; score: Score }> = [];
-  for (const benchmark of ["greenfield", "bugfix"]) {
+  for (const benchmark of ["greenfield", "bugfix", "frontend-challenge"]) {
     const benchmarkDir = join(RESULTS_DIR, benchmark);
     let entries: string[];
     try { entries = await readdir(benchmarkDir); } catch { continue; }
@@ -93,14 +94,17 @@ async function reevaluateRun(run: { resultDir: string; meta: Meta; score: Score 
   const before = await snapshotProject(projectDir);
   const validation = await validateProject(projectDir, timeoutMinutes, { install: false, typecheck: true, test: true, build: true, lint: true }, run.meta.benchmark);
   await saveJson(join(run.resultDir, "validation.reevaluated.json"), validation);
+  const frontend = run.meta.benchmark === "frontend-challenge"
+    ? await runFrontendChallengeEvaluator(projectDir, run.resultDir, validation, 90_000)
+    : undefined;
   const ui: UiFunctionalValidation = run.meta.benchmark === "greenfield"
     ? await runUiFunctionalEvaluator(projectDir, run.resultDir, run.meta.benchmark, 90_000)
     : { enabled: false, status: "skipped", passedChecks: 0, totalChecks: 0, score: 0, maxScore: 0, reason: "bugfix_has_no_ui_score", output: "UI evaluator skipped for bugfix." };
   await saveJson(join(run.resultDir, "ui-functional.reevaluated.json"), ui);
-  const fixtureDir = run.meta.benchmark === "bugfix" ? join(FIXTURES_DIR, "bugfix-app") : null;
+  const fixtureDir = run.meta.benchmark === "bugfix" ? join(FIXTURES_DIR, "bugfix-app") : run.meta.benchmark === "frontend-challenge" ? join(FIXTURES_DIR, "frontend-challenge") : null;
   const penalties = detectPenalties(projectDir, fixtureDir, run.meta.benchmark);
   const policy = reevaluationPolicy(run.meta);
-  const score = await computeScore(validation, penalties, { projectDir, benchmark: run.meta.benchmark, harnessError: policy.harnessError, ui });
+  const score = await computeScore(validation, penalties, { projectDir, benchmark: run.meta.benchmark, harnessError: policy.harnessError, ui, frontend });
   await saveJson(join(run.resultDir, "score.reevaluated.json"), score);
   const after = await snapshotProject(projectDir);
   await saveJson(join(run.resultDir, "reevaluation.json"), {

@@ -48,7 +48,7 @@ function shuffle<T>(values: T[], seed: number): T[] {
 }
 
 function buildPlan(models: ModelsConfig, config: BenchmarkConfig, args: ReturnType<typeof parseArgs>): PlannedRun[] {
-  const benchmarks = args.benchmark ? [args.benchmark] : ["greenfield", "bugfix"];
+  const benchmarks = args.benchmark ? [args.benchmark] : ["greenfield", "bugfix", "frontend-challenge"];
   const planned: PlannedRun[] = [];
   for (const benchmark of benchmarks) {
     if (!args.engine || args.engine === "opencode") {

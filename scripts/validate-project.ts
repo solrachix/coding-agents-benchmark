@@ -48,6 +48,12 @@ const ALL_VALIDATIONS: ValidationConfig = {
   lint: true,
 };
 
+export const ESLINT_GENERATED_IGNORES = [".next", "node_modules", "coverage", "dist", "next-env.d.ts", "*.tsbuildinfo"] as const;
+
+export function eslintArguments(): string[] {
+  return [".", ...ESLINT_GENERATED_IGNORES.flatMap((pattern) => ["--ignore-pattern", pattern])];
+}
+
 function skipped(enabled: boolean, name: string) {
   return { enabled, passed: !enabled, output: enabled ? "" : `Skipped: ${name} desabilitado` };
 }
@@ -121,16 +127,17 @@ export async function validateProject(
   if (validations.lint) {
     const eslintConfigExists = ["eslint.config.js", "eslint.config.mjs", "eslint.config.cjs", ".eslintrc", ".eslintrc.json", ".eslintrc.js", ".eslintrc.cjs"]
       .some((name) => existsSync(join(projectDir, name)));
-    const res = eslintConfigExists
-      ? await runDirectOrScript(projectDir, "lint", "eslint", ["."], timeout)
-      : await (async () => (await scriptExists(projectDir, "lint"))
-          ? runNpmScript("lint", projectDir, timeout)
-          : { exitCode: 1, output: "Configuração/script de lint não encontrado." })();
+    const directLint = await runLocalBin("eslint", eslintArguments(), projectDir, timeout);
+    const res = directLint ?? await (await scriptExists(projectDir, "lint")
+      ? runNpmScript("lint", projectDir, timeout)
+      : Promise.resolve({ exitCode: 1, output: `Configuração/script de lint não encontrado. Configuração detectada: ${eslintConfigExists}` }));
     result.lint = { enabled: true, passed: res.exitCode === 0, output: maskSecrets(res.output) };
   }
 
-  // The evaluator is injected only after the coding agent has exited.
-  result.functional = await runHiddenEvaluator(projectDir, timeout);
+  // Frontend challenge has its own browser evaluator and must not run the book evaluator.
+  result.functional = benchmark === "frontend-challenge"
+    ? { enabled: false, status: "passed", passed: true, passedTests: 0, totalTests: 0, score: 0, maxScore: 0, output: "Book hidden evaluator skipped for frontend challenge." }
+    : await runHiddenEvaluator(projectDir, timeout);
   return result;
 }
 

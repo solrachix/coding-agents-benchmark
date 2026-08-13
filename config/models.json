@@ -89,8 +89,11 @@
     }
   ],
   "copilot": [
-    { "id": "grok-4.5", "reasoningEffort": "medium", "enabled": true },
-    { "id": "claude-sonnet-5", "reasoningEffort": "medium", "enabled": true },
-    { "id": "gemini-3.6-flash", "reasoningEffort": "medium", "enabled": true }
+    { "id": "gpt-5.6-luna", "reasoningEffort": "medium", "enabled": true },
+    { "id": "gpt-5.4-mini", "reasoningEffort": "medium", "enabled": true },
+    { "id": "mai-code-1.1-flash", "reasoningEffort": "medium", "enabled": true },
+    { "id": "grok-4.5", "reasoningEffort": "medium", "enabled": false },
+    { "id": "claude-sonnet-5", "reasoningEffort": "medium", "enabled": false },
+    { "id": "gemini-3.6-flash", "reasoningEffort": "medium", "enabled": false }
   ]
 }

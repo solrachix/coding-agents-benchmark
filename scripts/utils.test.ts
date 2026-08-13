@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { CampaignAbortError, runWithConcurrency, validateWorkspacePath } from "./utils.js";
 import { validateProject } from "./validate-project.js";
+import { eslintArguments } from "./validate-project.js";
 import { runHarnessProcess } from "./harness.js";
 import { classifyProcessFailure, detectHarnessError, projectHasManifest } from "./utils.js";
 import { scoreProject } from "./rubric.js";
@@ -73,6 +74,13 @@ test("validateProject skips checks disabled in the benchmark configuration", asy
   assert.equal(result.build.enabled, false);
   assert.equal(result.lint.enabled, false);
   assert.equal(result.installDurationSeconds, 0);
+});
+
+test("eslint validation ignores generated Next.js artifacts", () => {
+  const args = eslintArguments();
+  for (const pattern of [".next", "node_modules", "coverage", "dist", "next-env.d.ts", "*.tsbuildinfo"]) {
+    assert.ok(args.includes(pattern));
+  }
 });
 
 test("runHarnessProcess captures a harness process using one shared contract", async () => {

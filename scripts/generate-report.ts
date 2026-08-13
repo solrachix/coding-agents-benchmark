@@ -10,6 +10,7 @@ import type { ModelRuntimeMetadata } from "./model-metadata.js";
 import { usableModelRevision } from "./model-metadata.js";
 import type { ProjectMetadata } from "./project-metadata.js";
 import { aggregateExecutions, type AggregatedResult } from "./aggregate-results.js";
+import type { FrontendChallengeResult } from "./frontend-challenge.js";
 
 interface VisualReport {
   status: "captured" | "skipped" | "failed";
@@ -69,17 +70,17 @@ interface ReportRow {
   projectMetadata?: ProjectMetadata;
   reevaluatedScore?: number | null;
   reevaluation?: { version?: string; projectUnchanged?: boolean; preserveOfficialScore?: boolean; originalScoreStatus?: string; reevaluatedScoreStatus?: string };
+  frontendChallenge?: FrontendChallengeResult;
   resultDir: string;
 }
 
 export function effectiveScore(row: Pick<ReportRow, "score" | "reevaluatedScore" | "reevaluation">): number | null {
-  if (row.score !== null) return row.score;
   const reevaluation = row.reevaluation;
-  return reevaluation?.reevaluatedScoreStatus === "valid" &&
+  if (reevaluation?.reevaluatedScoreStatus === "valid" &&
     reevaluation.projectUnchanged === true &&
     reevaluation.preserveOfficialScore === true
-    ? row.reevaluatedScore ?? null
-    : null;
+  ) return row.reevaluatedScore ?? row.score ?? null;
+  return row.score;
 }
 
 function escapeCodeFence(content: string): string { return content; }
@@ -146,6 +147,7 @@ export async function generateReport(executionId?: string): Promise<void> {
       const projectMetadata = meta.projectMetadata ?? await readFile(join(runPath, "project-metadata.json"), "utf-8").then((raw) => JSON.parse(raw) as ProjectMetadata).catch(() => undefined);
       const reevaluated = await readFile(join(runPath, "score.reevaluated.json"), "utf-8").then((raw) => JSON.parse(raw) as { total?: number | null }).catch(() => undefined);
       const reevaluation = await readFile(join(runPath, "reevaluation.json"), "utf-8").then((raw) => JSON.parse(raw) as ReportRow["reevaluation"]).catch(() => undefined);
+      const frontendChallenge = await readFile(join(runPath, "frontend-challenge.json"), "utf-8").then((raw) => JSON.parse(raw) as FrontendChallengeResult).catch(() => undefined);
 
       const reportRow = {
         benchmark: meta.benchmark,
@@ -193,6 +195,7 @@ export async function generateReport(executionId?: string): Promise<void> {
         projectMetadata,
         reevaluatedScore: reevaluated?.total,
         reevaluation,
+        frontendChallenge,
         resultDir: runPath,
       } satisfies Omit<ReportRow, "effectiveScore">;
       rows.push({ ...reportRow, effectiveScore: effectiveScore(reportRow) });
@@ -213,12 +216,13 @@ export async function generateReport(executionId?: string): Promise<void> {
   }
 
   mdLines.push(
-    "## Resultados",
+    "## Resultados — greenfield e bugfix",
     "",
     "| Benchmark | Harness | Provider | Model | Effort | Round | Score | Reevaluated | Effective | Artifact | Heuristic | Hidden | UI | Preserve | Tier | Status | Revision | Typecheck | Test | Build | Lint | Agent | Total | Tokens | Cache read | Cache write | AI credits | US$ eq. | Legacy cost |",
     "|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|---|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|"
   );
   for (const r of rows) {
+    if (r.frontendChallenge) continue;
     const hidden = r.functionalStatus === "evaluator_error" ? "ERROR" : `${r.functionalScore}/${r.functionalMax}`;
     mdLines.push(`| ${r.benchmark} | ${r.harness} | ${r.provider} | ${r.model} | ${r.reasoningEffort ?? "default"} | ${r.round} | ${r.score ?? "-"} | ${r.reevaluatedScore ?? "-"} | ${r.effectiveScore ?? "-"} | ${r.artifactScore} | ${r.unverifiedScore ?? "-"} | ${hidden} | ${r.uiFunctionalMax ? `${r.uiFunctionalScore}/${r.uiFunctionalMax}` : "-"} | ${r.benchmark === "bugfix" ? `${r.preservation}/15` : "-"} | ${r.tier ?? "-"} | ${r.scoreStatus ?? "legacy"} | ${r.modelRuntime?.modelRevision ?? "unknown"} | ${r.typecheck ? "✅" : "❌"} | ${r.test ? "✅" : "❌"} | ${r.build ? "✅" : "❌"} | ${r.lint ? "✅" : "❌"} | ${r.agentDuration}s | ${r.totalDuration}s | ${r.usage?.totalTokens?.toLocaleString("pt-BR") ?? "-"} | ${r.usage?.cacheReadTokens?.toLocaleString("pt-BR") ?? "-"} | ${r.usage?.cacheWriteTokens?.toLocaleString("pt-BR") ?? "-"} | ${r.usage?.aiCredits !== undefined ? r.usage.aiCredits : "-"} | ${usdEquivalent(r.usage) ?? "-"} | ${r.usage?.cost !== undefined ? `$${r.usage.cost}` : "-"} |`);
   }
@@ -245,6 +249,14 @@ export async function generateReport(executionId?: string): Promise<void> {
   mdLines.push("", "## Estatísticas por Configuração", "", "| Configuração | Runs | Válidos | Média | Mediana | Min | Max | Range | P25 | P75 | SD | CV | Sucesso | Harness fail | Evaluator error | UI ? | Func. fail | Modelo <70 | Tempo | Score/min | AI credits | US$ eq. | Score/credit | Score/$ |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
   for (const a of aggregates) {
     mdLines.push(`| ${a.key} | ${a.runs} | ${a.successes} | ${fmt(a.mean)} | ${fmt(a.median)} | ${fmt(a.minimum)} | ${fmt(a.maximum)} | ${fmt(a.range)} | ${fmt(a.p25)} | ${fmt(a.p75)} | ${fmt(a.standardDeviation)} | ${a.coefficientOfVariation !== null ? `${a.coefficientOfVariation}%` : "-"} | ${a.successRate}% | ${a.harnessFailures} | ${a.evaluatorErrors} | ${a.uiUnverified} | ${a.functionalFailures} | ${a.catastrophicModelFailures} | ${fmt(a.meanDuration)}s | ${fmt(a.meanScorePerMinute)} | ${fmt(a.meanAiCredits)} | ${a.meanCost !== null ? `$${a.meanCost}` : "-"} | ${fmt(a.meanScorePerCredit)} | ${fmt(a.meanScorePerDollar)} |`);
+  }
+  const frontendRows = rows.filter((row) => row.frontendChallenge);
+  if (frontendRows.length) {
+    mdLines.push("", "## Frontend Challenge", "", "> Esta categoria mede qualidade de frontend separadamente do `UI Functional` do greenfield: visual, responsividade, E2E, acessibilidade, interações, arquitetura e validação técnica.", "", "| Model | Frontend Score | Visual | Responsive | E2E | A11y | Interactions | Architecture | Time | AI Credits |", "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
+    for (const row of frontendRows) {
+      const f = row.frontendChallenge!;
+      mdLines.push(`| ${row.model} | ${f.score ?? "-"} | ${f.visual.score}/25 | ${f.responsive.score}/15 | ${f.e2e.score}/20 | ${f.accessibility.score}/10 | ${f.interactions.score}/10 | ${f.architecture.score}/10 | ${Math.round(row.totalDuration / 60 * 10) / 10} min | ${row.usage?.aiCredits ?? "-"} |`);
+    }
   }
   mdLines.push("", "> `Harness fail`, `evaluator error`, `UI não verificada` e `falha funcional do agente` são contados separadamente; erro de provider não é tratado como falha de capacidade do modelo.");
 
@@ -288,6 +300,7 @@ export async function generateReport(executionId?: string): Promise<void> {
     mdLines.push(`- Modelo solicitado: \`${r.modelRuntime?.requestedModel ?? r.model}\`; resolvido observado: \`${r.modelRuntime?.resolvedModel ?? "unknown"}\`; revisão: \`${r.modelRuntime?.modelRevision ?? "unknown"}\`; fingerprint: \`${r.modelRuntime?.systemFingerprint ?? "unknown"}\``);
     mdLines.push(`- Stack gerada: Next \`${resolved.next ?? deps.next ?? "-"}\`, Prisma \`${resolved.prisma ?? resolved["@prisma/client"] ?? deps.prisma ?? deps["@prisma/client"] ?? "-"}\`, Zod \`${resolved.zod ?? deps.zod ?? "-"}\`, Vitest \`${resolved.vitest ?? deps.vitest ?? "-"}\`, Jest \`${resolved.jest ?? deps.jest ?? "-"}\`; package hash \`${r.projectMetadata?.packageJsonHash?.slice(0, 12) ?? "-"}\``);
     mdLines.push(`- Exit code: \`${r.exitCode}\`; score oficial: \`${r.score}\`; artifact score: \`${r.artifactScore}\`; heurístico: \`${r.unverifiedScore ?? "-"}\`; hidden: \`${r.functionalStatus === "evaluator_error" ? "ERROR" : `${r.functionalScore}/${r.functionalMax}`}\`; UI: \`${r.uiFunctionalMax ? `${r.uiFunctionalScore}/${r.uiFunctionalMax} (${r.uiFunctionalStatus})` : "n/a"}\`; preservação: \`${r.benchmark === "bugfix" ? `${r.preservation}/15` : "n/a"}\``);
+    if (r.frontendChallenge) mdLines.push(`- Frontend Challenge: score \`${r.frontendChallenge.score ?? "-"}/100\`; visual \`${r.frontendChallenge.visual.score}/25\`; responsive \`${r.frontendChallenge.responsive.score}/15\`; E2E \`${r.frontendChallenge.e2e.score}/20\`; a11y \`${r.frontendChallenge.accessibility.score}/10\`; interactions \`${r.frontendChallenge.interactions.score}/10\`; architecture \`${r.frontendChallenge.architecture.score}/10\`; technical \`${r.frontendChallenge.validation.score}/10\``);
     if (r.reevaluation) mdLines.push(`- Reavaliação ${r.reevaluation.version ?? "2.3.1"}: score \`${r.reevaluatedScore ?? "-"}\`; agente rerodado: \`não\`; projeto inalterado: \`${r.reevaluation.projectUnchanged ?? "unknown"}\`; score oficial preservado: \`${r.reevaluation.preserveOfficialScore ?? false}\``);
     mdLines.push(`- Durações: agent \`${r.agentDuration}s\`, install \`${r.installDuration}s\`, validation \`${r.validationDuration}s\`, total \`${r.totalDuration}s\``);
     mdLines.push(`- Visual smoke: \`${r.visualStatus ?? "legacy"}\`${r.visualReason ? ` (${r.visualReason})` : ""}`);
