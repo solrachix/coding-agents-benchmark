@@ -87,7 +87,7 @@ export async function runOpenCode(
     env: {
       OPENCODE_CONFIG_DIR: isolatedConfigDir,
       OPENCODE_DISABLE_AUTOUPDATE: "1",
-      OPENCODE_DISABLE_PRUNE: "1",
+      OPENCODE_EXPERIMENTAL_DISABLE_FILEWATCHER: "1",
     },
   });
   const agentDurationSeconds = result.durationSeconds;

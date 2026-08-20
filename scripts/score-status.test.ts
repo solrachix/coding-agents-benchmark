@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getScoreStatus } from "./score-results.js";
+import { getFrontendScoreStatus, getScoreStatus } from "./score-results.js";
 
 const ui = (status: "passed" | "failed" | "skipped") => ({
   enabled: true,
@@ -26,4 +26,10 @@ test("bugfix does not require the greenfield UI evaluator", () => {
 test("evaluator errors are distinct from functional model failures", () => {
   assert.equal(getScoreStatus(false, "bugfix", undefined, "failed"), "valid");
   assert.equal(getScoreStatus(false, "bugfix", undefined, "evaluator_error"), "evaluator_error");
+});
+
+test("frontend challenge applies the harness hard gate consistently", () => {
+  assert.equal(getFrontendScoreStatus(false, "valid"), "valid");
+  assert.equal(getFrontendScoreStatus(false, "visual_unverified"), "visual_unverified");
+  assert.equal(getFrontendScoreStatus(true, "valid"), "harness_failed");
 });

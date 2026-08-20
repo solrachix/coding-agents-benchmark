@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="950" viewBox="0 0 1600 950">
+  <rect width="1600" height="950" fill="white"/>
+  <style>
+    text { font-family: Arial, sans-serif; fill: #111827; }
+    .muted { fill: #6b7280; }
+    .grid { stroke: #d1d5db; stroke-dasharray: 6 6; }
+    .axis { stroke: #374151; stroke-width: 2; }
+    .point { fill: #287fc7; stroke: white; stroke-width: 3; }
+    .label { font-size: 18px; }
+    .value { font-size: 16px; }
+  </style>
+  <text x="800" y="48" text-anchor="middle" font-size="32">Greenfield — qualidade × velocidade</text>
+  <text x="800" y="80" text-anchor="middle" font-size="17" class="muted">Média dos rounds válidos; comparações entre harnesses medem modelo + harness</text>
+  <line x1="120" y1="160" x2="120" y2="820" class="axis"/><line x1="120" y1="820" x2="1480" y2="820" class="axis"/>
+  <g font-size="15" class="muted">
+    <line x1="120" y1="697" x2="1480" y2="697" class="grid"/><text x="96" y="703" text-anchor="end">80</text>
+    <line x1="120" y1="574" x2="1480" y2="574" class="grid"/><text x="96" y="580" text-anchor="end">85</text>
+    <line x1="120" y1="451" x2="1480" y2="451" class="grid"/><text x="96" y="457" text-anchor="end">90</text>
+    <line x1="120" y1="328" x2="1480" y2="328" class="grid"/><text x="96" y="334" text-anchor="end">95</text>
+    <line x1="120" y1="205" x2="1480" y2="205" class="grid"/><text x="96" y="211" text-anchor="end">100</text>
+    <text x="800" y="885" text-anchor="middle" font-size="18">Tempo médio por run válido (min) — mais rápido à esquerda</text>
+    <text transform="translate(34 500) rotate(-90)" text-anchor="middle" font-size="18">Score efetivo médio — melhor para cima</text>
+    <text x="120" y="845" text-anchor="middle">0</text><text x="460" y="845" text-anchor="middle">5</text><text x="800" y="845" text-anchor="middle">10</text><text x="1140" y="845" text-anchor="middle">15</text><text x="1480" y="845" text-anchor="middle">20</text>
+  </g>
+  <g>
+    <circle cx="310" cy="217" r="12" class="point"/><text x="330" y="178" class="label">GPT-5.6 Luna · Copilot</text><text x="330" y="201" class="value">99,5 pts · 2,8 min · n=2</text>
+    <circle cx="548" cy="205" r="12" class="point"/><text x="570" y="155" class="label">Gemini 3.6 Flash · Copilot</text><text x="570" y="178" class="value">100 pts · 6,3 min · n=2</text>
+    <circle cx="392" cy="328" r="12" class="point"/><text x="414" y="300" class="label">Grok 4.5 · Copilot</text><text x="414" y="323" class="value">95 pts · 4,0 min · n=2</text>
+    <circle cx="603" cy="340" r="12" class="point"/><text x="625" y="375" class="label">Kimi K2.7 Code · Copilot</text><text x="625" y="398" class="value">94,5 pts · 7,1 min · n=2</text>
+    <circle cx="541" cy="402" r="12" class="point"/><text x="563" y="445" class="label">GPT-5.4 Mini · Copilot</text><text x="563" y="468" class="value">92 pts · 6,2 min · n=2</text>
+    <circle cx="698" cy="451" r="12" class="point"/><text x="720" y="494" class="label">Claude Sonnet 5 · Copilot</text><text x="720" y="517" class="value">90 pts · 8,5 min · n=2</text>
+    <circle cx="603" cy="476" r="12" class="point"/><text x="625" y="555" class="label">MAI-Code 1.1 Flash · Copilot</text><text x="625" y="578" class="value">89 pts · 7,1 min · n=2</text>
+    <circle cx="793" cy="353" r="12" class="point"/><text x="815" y="390" class="label">HY3 · OpenCode</text><text x="815" y="413" class="value">94 pts · 9,9 min · n=2</text>
+    <circle cx="834" cy="229" r="12" class="point"/><text x="856" y="255" class="label">MiMo V2.5 · OpenCode</text><text x="856" y="278" class="value">99 pts · 10,5 min · n=1</text>
+    <circle cx="970" cy="328" r="12" class="point"/><text x="992" y="285" class="label">DeepSeek V4 Flash max · OpenCode</text><text x="992" y="308" class="value">95 pts · 12,5 min · n=1</text>
+    <circle cx="1320" cy="475" r="12" class="point"/><text x="1342" y="440" class="label">DeepSeek V4 Pro max · OpenCode</text><text x="1342" y="463" class="value">89 pts · 17,7 min · n=1</text>
+    <circle cx="1058" cy="746" r="12" class="point"/><text x="1080" y="708" class="label">Claude Haiku 4.5 · Copilot</text><text x="1080" y="731" class="value">78 pts · 13,8 min · n=0 oficial</text>
+  </g>
+  <text x="800" y="925" text-anchor="middle" font-size="15" class="muted">Haiku: artefatos avaliados, mas execução inválida para ranking oficial.</text>
+</svg>

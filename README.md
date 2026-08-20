@@ -8,23 +8,42 @@ Projeto pessoal e experimental. A ideia é medir agentes em tarefas reais de cod
 
 Texto preparado para compartilhar os resultados da campanha greenfield pelo Copilot SDK. Foram usados dois rounds por modelo, com créditos medidos por sessão. O `effectiveScore` inclui resultados recuperados por reavaliação local quando o artefato permaneceu inalterado; o score original continua preservado no relatório.
 
-| Modelo | Score greenfield | Tempo/run | AI credits/run |
-|---|---:|---:|---:|
-| GPT-5.6 Luna | 99,5 | 2,8 min | 3,02 |
-| Kimi K2.7 Code | 94,5 | 7,1 min | 47,91 |
-| GPT-5.4 Mini | 92,0 | 6,2 min | 46,14 |
-| MAI-Code 1.1 Flash | 89,0 | 7,1 min | 8,72 |
-| Claude Haiku 4.5 | 78,0 | 13,8 min | 120,99 |
+| Harness | Modelo | Score médio | Rounds válidos | Tempo/run | Custo medido |
+|---|---|---:|---:|---:|---:|
+| Copilot SDK | GPT-5.6 Luna | 99,5 | 2/2 | 2,8 min | 3,02 AI credits |
+| Copilot SDK | Kimi K2.7 Code | 94,5 | 2/2 | 7,1 min | 47,91 AI credits |
+| Copilot SDK | GPT-5.4 Mini | 92,0 | 2/2 | 6,2 min | 46,14 AI credits |
+| Copilot SDK | MAI-Code 1.1 Flash | 89,0 | 2/2 | 7,1 min | 8,72 AI credits |
+| Copilot SDK | Claude Haiku 4.5 | 78,0 | 0/2 oficial | 13,8 min | 120,99 AI credits* |
+| OpenCode | DeepSeek V4 Flash max | 95,0 | 1/2 | 12,5 min | US$ 0,017 |
+| OpenCode | DeepSeek V4 Pro max | 89,0 | 1/2 | 17,7 min | US$ 0,146 |
+| OpenCode | MiMo V2.5 max | 99,0 | 1/2 | 10,5 min | US$ 0,01179 |
+| OpenCode | HY3 max | 94,0 | 2/2 | 9,9 min | US$ 0,0127 |
+| OpenCode | Ornith 1.5 9B local | N/A | 0/2 oficial | ~45 min | — |
 
-Nesta amostra, o GPT-5.6 Luna apresentou o melhor equilíbrio entre qualidade, tempo e consumo. O Kimi atingiu um teto alto, mas com consumo maior; o GPT-5.4 Mini ficou competitivo; o MAI foi econômico; e o Haiku ficou atrás nos três eixos. No bugfix, o Luna marcou 100/100 nos dois rounds da campanha correspondente.
+Nesta amostra, o GPT-5.6 Luna apresentou o melhor equilíbrio entre qualidade, tempo e consumo. O MiMo V2.5 encostou no topo em qualidade, com 100/100 no bugfix e 99 no único greenfield válido, mas foi mais lento. O HY3 foi forte e consistente no greenfield, com 94/94. O Kimi atingiu um teto alto, mas com consumo maior; o GPT-5.4 Mini ficou competitivo; o MAI foi econômico; e o Haiku ficou atrás nos três eixos. No bugfix, o Luna marcou 100/100 nos dois rounds da campanha correspondente.
+
+### Campanha OpenCode — MiMo, HY3 e Ornith
+
+Resultados observados na execução OpenCode de 20 de agosto de 2026:
+
+| Configuração | Greenfield | Bugfix | Frontend Challenge | Leitura |
+|---|---:|---:|---:|---|
+| MiMo V2.5 max | 99 / N/A | 100 / 100 | 95 / 86 | Destaque de qualidade; greenfield R2 teve erro do evaluator. |
+| HY3 max | 94 / 94 | 100 / N/A | 91 / 88 | Forte e consistente no greenfield; bugfix R2 terminou com SIGTERM. |
+| Ornith 1.5 9B local | N/A | N/A | N/A oficial | Artefatos frontend chegaram a 88, mas as execuções bateram timeout de ~45 min. |
+
+Para o gráfico geral de greenfield, o MiMo foi agregado usando apenas o round válido (`99 @ 628,2 s`); o erro do evaluator não é tratado como uma segunda nota 99. O custo OpenCode observado foi de aproximadamente **US$ 0,01179/run** para o MiMo e **US$ 0,0127/run** para o HY3. O Ornith fica fora do ranking oficial: seus artefatos são auditáveis, mas as execuções não terminaram de forma comparável.
 
 Essa é uma amostra pequena e não deve ser tratada como benchmark universal. OpenCode, Codex e Copilot SDK medem `modelo + harness`; aliases podem apontar para revisões diferentes; e scores reavaliados são identificados separadamente no relatório.
 
 ### Gráficos
 
-![Qualidade por tempo](docs/results/benchmark-v23-qualidade-tempo.png)
+![Qualidade por tempo](docs/results/benchmark-greenfield-qualidade-tempo.svg)
 
-![Qualidade por AI Credits](docs/results/benchmark-v23-qualidade-creditos.png)
+![Qualidade por custo reportado](docs/results/benchmark-greenfield-qualidade-custo.svg)
+
+\* Haiku e Ornith tiveram artefatos avaliados, mas as execuções foram inválidas para o ranking oficial. OpenCode e Copilot usam unidades de custo diferentes; os valores não são financeiramente comparáveis entre harnesses.
 
 ## Instalação
 

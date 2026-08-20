@@ -125,6 +125,14 @@ test("detectHarnessError classifies exhausted monthly quota as provider credits"
   });
 });
 
+test("detectHarnessError does not infer an agent timeout from ordinary output", () => {
+  const detected = detectHarnessError("agent completed; timeout value was 30 minutes");
+  assert.deepEqual(detected, { harnessError: false });
+  assert.deepEqual(classifyProcessFailure(0, detected, { timedOut: false, signal: null }), {
+    harnessError: false,
+  });
+});
+
 test("classifyProcessFailure marks a non-zero harness exit as failed", () => {
   assert.deepEqual(classifyProcessFailure(1, { harnessError: false }), {
     harnessError: true,

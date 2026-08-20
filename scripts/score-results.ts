@@ -46,6 +46,14 @@ export function getScoreStatus(
   return "valid";
 }
 
+export function getFrontendScoreStatus(
+  harnessError: boolean,
+  frontendStatus: FrontendChallengeResult["scoreStatus"],
+): Score["scoreStatus"] {
+  if (harnessError) return "harness_failed";
+  return frontendStatus;
+}
+
 export function reportableScores(score: Pick<Score, "total" | "scoreStatus"> & Partial<Pick<Score, "artifactScore">>): {
   artifactScore: number;
   officialScore: number | null;
@@ -131,13 +139,14 @@ export async function computeScore(
 
   if (benchmark === "frontend-challenge" && options?.frontend) {
     const frontend = options.frontend;
+    const scoreStatus = getFrontendScoreStatus(options?.harnessError ?? false, frontend.scoreStatus);
     return {
       ...rubric,
-      total: frontend.scoreStatus === "valid" ? frontend.score : null,
+      total: scoreStatus === "valid" ? frontend.score : null,
       artifactScore: frontend.score ?? 0,
       objectiveScore: frontend.score ?? 0,
       tier: finalTier(frontend.score ?? 0),
-      scoreStatus: frontend.scoreStatus,
+      scoreStatus,
       typecheck: frontend.validation.typecheck,
       test: frontend.validation.test,
       build: frontend.validation.build,

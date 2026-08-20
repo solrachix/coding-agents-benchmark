@@ -1,6 +1,24 @@
 {
   "opencode": [
     {
+      "id": "opencode-go/mimo-v2.5",
+      "reasoningEffort": "max",
+      "enabled": true
+    },
+    {
+      "id": "opencode-go/hy3",
+      "reasoningEffort": "max",
+      "enabled": true
+    },
+    {
+      "id": "ollama/ornith-1.5:9b",
+      "enabled": true
+    },
+    {
+      "id": "ollama/ornith-1.5:35b",
+      "enabled": false
+    },
+    {
       "id": "opencode-go/deepseek-v4-flash",
       "reasoningEffort": "max",
       "enabled": false
@@ -28,11 +46,6 @@
     {
       "id": "opencode-go/deepseek-v4-flash",
       "reasoningEffort": "low",
-      "enabled": false
-    },
-    {
-      "id": "openai/gpt-5.6-luna",
-      "reasoningEffort": "medium",
       "enabled": false
     },
     {
@@ -89,13 +102,45 @@
     }
   ],
   "copilot": [
-    { "id": "gpt-5.6-luna", "reasoningEffort": "medium", "enabled": false },
-    { "id": "gpt-5.4-mini", "reasoningEffort": "medium", "enabled": false },
-    { "id": "mai-code-1.1-flash", "reasoningEffort": "medium", "enabled": false },
-    { "id": "grok-4.5", "reasoningEffort": "medium", "enabled": false },
-    { "id": "claude-sonnet-5", "reasoningEffort": "medium", "enabled": false },
-    { "id": "gemini-3.6-flash", "reasoningEffort": "medium", "enabled": false },
-    { "id": "kimi-k2.7-code", "reasoningEffort": "medium", "enabled": true },
-    { "id": "claude-haiku-4.5", "reasoningEffort": "medium", "enabled": true }
+    {
+      "id": "gpt-5.6-luna",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "mai-code-1.1-flash",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "grok-4.5",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "claude-sonnet-5",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "gemini-3.6-flash",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "kimi-k2.7-code",
+      "reasoningEffort": "medium",
+      "enabled": false
+    },
+    {
+      "id": "claude-haiku-4.5",
+      "reasoningEffort": "medium",
+      "enabled": false
+    }
   ]
 }

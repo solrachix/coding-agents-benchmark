@@ -158,9 +158,6 @@ export function detectHarnessError(output: string): { harnessError: boolean; har
   if (/Copilot CLI not found|install copilot|Copilot SDK error/i.test(output)) {
     return { harnessError: true, harnessErrorType: "copilot_sdk_runtime" };
   }
-  if (/timed out|timeout|aborted/i.test(output)) {
-    return { harnessError: true, harnessErrorType: "agent_timeout" };
-  }
   return { harnessError: false };
 }
 

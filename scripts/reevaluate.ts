@@ -57,11 +57,14 @@ export function reevaluationPolicy(meta: Pick<Meta, "exitCode" | "harnessError">
   return { preserveOfficialScore: cleanExit, harnessError: !cleanExit };
 }
 
-async function preserveOriginals(resultDir: string): Promise<void> {
+export async function preserveOriginals(resultDir: string): Promise<void> {
   for (const filename of ["meta.json", "score.json", "frontend-challenge.json"]) {
     const source = join(resultDir, filename);
     const destination = join(resultDir, filename.replace(".json", ".original.json"));
-    try { await stat(destination); } catch { await copyFile(source, destination); }
+    try { await stat(destination); } catch {
+      try { await stat(source); } catch { continue; }
+      await copyFile(source, destination);
+    }
   }
   const validationLog = join(resultDir, "validation.log");
   const originalLog = join(resultDir, "validation.original.log");

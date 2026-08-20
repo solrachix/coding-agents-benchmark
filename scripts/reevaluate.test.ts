@@ -4,7 +4,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { mkdtemp } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { hashProject, snapshotProject, reevaluationPolicy } from "./reevaluate.js";
+import { hashProject, snapshotProject, reevaluationPolicy, preserveOriginals } from "./reevaluate.js";
 
 test("reevaluation restores an official score only for a run that exited cleanly", () => {
   assert.deepEqual(reevaluationPolicy({ exitCode: 0, scoreStatus: "harness_failed" }), {
@@ -39,4 +39,12 @@ test("project snapshot reports the exact files changed during reevaluation", asy
   const after = await snapshotProject(project);
 
   assert.deepEqual(after.changedFilesComparedTo(before), ["generated.json", "src.ts"]);
+});
+
+test("preserveOriginals tolerates runs without optional frontend evidence", async () => {
+  const resultDir = await mkdtemp(join(tmpdir(), "benchmark-preserve-originals-"));
+  await writeFile(join(resultDir, "meta.json"), "{}");
+  await writeFile(join(resultDir, "score.json"), "{}");
+
+  await assert.doesNotReject(() => preserveOriginals(resultDir));
 });
